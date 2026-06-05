@@ -182,6 +182,18 @@ market_df = pd.read_csv(
     "datasets/Price_Agriculture_commodities_Week.csv"
 )
 
+irrigation_model = joblib.load(
+    "models/irrigation_model.pkl"
+)
+
+target_encoder = joblib.load(
+    "models/irrigation_target_encoder.pkl"
+)
+
+feature_columns = joblib.load(
+    "models/irrigation_feature_columns.pkl"
+)
+
 # ==========================
 # Page Configuration
 # ==========================
@@ -277,6 +289,20 @@ districts = sorted(
 district = st.selectbox(
     TEXT["select_district"][language],
     districts
+)
+
+st.subheader("💧 Irrigation Information")
+
+soil_type = st.selectbox(
+    "Soil Type",
+    ["Sandy", "Loamy", "Clay"]
+)
+
+soil_moisture = st.slider(
+    "Soil Moisture (%)",
+    0.0,
+    100.0,
+    50.0
 )
 
 # ==========================
@@ -453,22 +479,57 @@ if st.button(button_text[language]):
 # Water Assessment
 
 
-    st.subheader(TEXT["water"][language])
+   # ==========================
+# Irrigation Prediction
+# ==========================
 
-    if rainfall < 800:
-        water_need = "More"
+    st.subheader("💧 Irrigation Prediction")
 
-    elif rainfall < 1500:
-        water_need = "Medium"
+    irrigation_input = pd.DataFrame([{
+        "Soil_Type": soil_type,
+        "Soil_pH": ph,
+        "Soil_Moisture": soil_moisture,
+        "Organic_Carbon": 0.8,
+        "Electrical_Conductivity": 0.5,
+        "Temperature_C": temperature,
+        "Humidity": humidity,
+        "Rainfall_mm": rainfall,
+        "Sunlight_Hours": 8,
+        "Wind_Speed_kmh": 10,
+        "Crop_Type": predicted_crop,
+        "Crop_Growth_Stage": "Vegetative",
+        "Season": "Kharif",
+        "Irrigation_Type": "Drip",
+        "Water_Source": "Groundwater",
+        "Field_Area_hectare": 1,
+        "Mulching_Used": "Yes",
+        "Previous_Irrigation_mm": 20,
+        "Region": "South"
+    }])
 
-    else:
-        water_need = "Less"
+    irrigation_input = pd.get_dummies(
+        irrigation_input
+    )
 
-    if water_need == "More":
-        st.error(TEXT["more_water"][language])
+    irrigation_input = irrigation_input.reindex(
+        columns=feature_columns,
+        fill_value=0
+    )
 
-    elif water_need == "Medium":
-        st.warning(TEXT["medium_water"][language])
+    prediction = irrigation_model.predict(
+        irrigation_input
+    )
 
-    else:
-        st.success(TEXT["less_water"][language])
+    irrigation_need = target_encoder.inverse_transform(
+        prediction
+    )[0]
+
+    irrigation_text = {
+        "English": "Irrigation Need",
+        "Kannada": "ನೀರಾವರಿ ಅಗತ್ಯ",
+        "Hindi": "सिंचाई आवश्यकता"
+    }
+
+    st.success(
+        f"{irrigation_text[language]}: {irrigation_need}"
+    )
