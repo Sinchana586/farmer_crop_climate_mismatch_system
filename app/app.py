@@ -125,6 +125,46 @@ TEXT = {
         "English": "Select District",
         "Kannada": "ಜಿಲ್ಲೆ ಆಯ್ಕೆಮಾಡಿ",
         "Hindi": "जिला चुनें"
+    },
+    "market_price": {
+        "English": "💰 Market Price",
+        "Kannada": "💰 ಮಾರುಕಟ್ಟೆ ಬೆಲೆ",
+        "Hindi": "💰 बाजार मूल्य"
+    },
+    "income_estimate": {
+        "English": "💵 Income Estimate",
+        "Kannada": "💵 ಆದಾಯ ಅಂದಾಜು",
+        "Hindi": "💵 आय का अनुमान"
+    },
+    "avg_market_price": {
+        "English": "Average Market Price",
+        "Kannada": "ಸರಾಸರಿ ಮಾರುಕಟ್ಟೆ ಬೆಲೆ",
+        "Hindi": "औसत बाजार मूल्य"
+    },
+    "min_market_price": {
+        "English": "Minimum Market Price",
+        "Kannada": "ಕನಿಷ್ಠ ಮಾರುಕಟ್ಟೆ ಬೆಲೆ",
+        "Hindi": "न्यूनतम बाजार मूल्य"
+    },
+    "max_market_price": {
+        "English": "Maximum Market Price",
+        "Kannada": "ಗರಿಷ್ಠ ಮಾರುಕಟ್ಟೆ ಬೆಲೆ",
+        "Hindi": "अधिकतम बाजार मूल्य"
+    },
+    "income_estimate": {
+        "English": "💵 Income Estimate",
+        "Kannada": "💵 ಆದಾಯ ಅಂದಾಜು",
+        "Hindi": "💵 आय का अनुमान"
+    },
+    "estimated_income": {
+        "English": "Estimated Income",
+        "Kannada": "ಅಂದಾಜು ಆದಾಯ",
+        "Hindi": "अनुमानित आय"
+    },
+    "market_not_available": {
+        "English": "Market price data not available for this crop.",
+        "Kannada": "ಈ ಬೆಳೆಗೆ ಮಾರುಕಟ್ಟೆ ಬೆಲೆ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ.",
+        "Hindi": "इस फसल के लिए बाजार मूल्य डेटा उपलब्ध नहीं है।"
     }
 }
 
@@ -136,6 +176,10 @@ rainfall_df = pd.read_csv(
 
 production_df = pd.read_csv(
     "datasets/India Agriculture Crop Production.csv"
+)
+
+market_df = pd.read_csv(
+    "datasets/Price_Agriculture_commodities_Week.csv"
 )
 
 # ==========================
@@ -352,7 +396,63 @@ if st.button(button_text[language]):
         else:
             st.warning(TEXT["low_harvest"][language])
 
-    # Water Assessment
+
+# ==========================
+# Market Price Analysis
+# ==========================
+
+    crop_price_data = market_df[
+        market_df["Commodity"]
+        .astype(str)
+        .str.lower()
+        .str.contains(predicted_crop.lower(), na=False)
+    ]
+
+    if not crop_price_data.empty:
+
+        avg_price = crop_price_data["Modal Price"].mean()
+
+        min_price = crop_price_data["Min Price"].mean()
+
+        max_price = crop_price_data["Max Price"].mean()
+
+        st.subheader(
+        TEXT["market_price"][language]
+        )
+
+        st.write(
+            f"{TEXT['avg_market_price'][language]}: ₹{avg_price:.0f}"
+        )
+
+        st.write(
+            f"{TEXT['min_market_price'][language]}: ₹{min_price:.0f}"
+        )
+
+        st.write(
+            f"{TEXT['max_market_price'][language]}: ₹{max_price:.0f}"
+        )
+
+        if 'avg_yield' in locals():
+
+            estimated_income = avg_yield * avg_price
+
+            st.subheader(
+                TEXT["income_estimate"][language]
+            )
+
+            st.success(
+                f"{TEXT['estimated_income'][language]}: ₹{estimated_income:,.0f}"
+            )
+
+    else:
+
+        st.warning(
+        TEXT["market_not_available"][language]
+        )
+
+# Water Assessment
+
+
     st.subheader(TEXT["water"][language])
 
     if rainfall < 800:
