@@ -479,6 +479,20 @@ language = st.selectbox(
     ["English","Kannada","Hindi"]
 )
 
+titles = {
+    "English": "Smart Farming & Agricultural Decision Support System",
+    "Kannada": "ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಮತ್ತು ಕೃಷಿ ನಿರ್ಧಾರ ಬೆಂಬಲ ವ್ಯವಸ್ಥೆ",
+    "Hindi": "स्मार्ट कृषि एवं कृषि निर्णय सहायता प्रणाली"
+}
+
+st.markdown(f"""
+<div style='text-align:center; padding:20px;'>
+    <h1>🌾 BhoomiAI</h1>
+    <h4>{titles[language]}</h4>
+</div>
+""", unsafe_allow_html=True)
+
+
 # ---------- LOAD ----------
 model = joblib.load(
     "models/random_forest_model.pkl"
@@ -528,7 +542,6 @@ CREATE TABLE IF NOT EXISTS predictions (
 
 conn.commit()
 
-st.title(TEXT["title"][language])
 st.write(TEXT["description"][language])
 
 st.sidebar.title("Database")
