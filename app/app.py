@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
-
+import sqlite3
 # ==========================
 # Load Models & Datasets
 # ==========================
@@ -165,7 +165,48 @@ TEXT = {
         "English": "Market price data not available for this crop.",
         "Kannada": "ಈ ಬೆಳೆಗೆ ಮಾರುಕಟ್ಟೆ ಬೆಲೆ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ.",
         "Hindi": "इस फसल के लिए बाजार मूल्य डेटा उपलब्ध नहीं है।"
+    },
+    "mode_selection": {
+    "English": "Choose Recommendation Mode",
+    "Kannada": "ಶಿಫಾರಸು ವಿಧಾನವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    "Hindi": "सिफारिश मोड चुनें"
+    },
+
+    "advanced_mode": {
+        "English": "Advanced (Soil Test Available)",
+        "Kannada": "ಸುಧಾರಿತ (ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ಲಭ್ಯವಿದೆ)",
+        "Hindi": "उन्नत (मिट्टी परीक्षण उपलब्ध)"
+    },
+
+    "simple_mode": {
+        "English": "Simple Farmer Mode",
+        "Kannada": "ಸರಳ ರೈತ ವಿಧಾನ",
+        "Hindi": "सरल किसान मोड"
+    },
+    "soil_type": {
+        "English": "Soil Type",
+        "Kannada": "ಮಣ್ಣಿನ ವಿಧ",
+        "Hindi": "मिट्टी का प्रकार"
+    },
+
+    "season": {
+        "English": "Season",
+        "Kannada": "ಋತು",
+        "Hindi": "मौसम"
+    },
+
+    "water_availability": {
+        "English": "Water Availability",
+        "Kannada": "ನೀರಿನ ಲಭ್ಯತೆ",
+        "Hindi": "पानी की उपलब्धता"
+    },
+
+    "district_select": {
+        "English": "District",
+        "Kannada": "ಜಿಲ್ಲೆ",
+        "Hindi": "जिला"
     }
+
 }
 
 model = joblib.load("models/random_forest_model.pkl")
@@ -195,6 +236,36 @@ feature_columns = joblib.load(
 )
 
 # ==========================
+# Database Setup
+# ==========================
+
+conn = sqlite3.connect(
+    "farmer_data.db",
+    check_same_thread=False
+)
+
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS predictions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    language TEXT,
+    district TEXT,
+    nitrogen REAL,
+    phosphorus REAL,
+    potassium REAL,
+    temperature REAL,
+    humidity REAL,
+    ph REAL,
+    rainfall REAL,
+    recommended_crop TEXT,
+    weather_status TEXT
+)
+""")
+
+conn.commit()
+# ==========================
 # Page Configuration
 # ==========================
 
@@ -212,84 +283,126 @@ language = st.selectbox(
 st.title(TEXT["title"][language])
 st.write(TEXT["description"][language])
 
+mode = st.radio(
+    TEXT["mode_selection"][language],
+    [
+        TEXT["advanced_mode"][language],
+        TEXT["simple_mode"][language]
+    ]
+)
+
 # ==========================
 # User Inputs
 # ==========================
 
-N = st.number_input(
-    {
-        "English":"Nitrogen (N)",
-        "Kannada":"ನೈಟ್ರೋಜನ್ (N)",
-        "Hindi":"नाइट्रोजन (N)"
-    }[language],
-    min_value=0.0,
-    value=90.0
-)
 
-P = st.number_input(
-    {
-        "English":"Phosphorus (P)",
-        "Kannada":"ಫಾಸ್ಫರಸ್ (P)",
-        "Hindi":"फॉस्फोरस (P)"
-    }[language],
-    min_value=0.0,
-    value=42.0
-)
+if mode == TEXT["advanced_mode"][language]:
+    N = st.number_input(
+        {
+            "English":"Nitrogen (N)",
+            "Kannada":"ನೈಟ್ರೋಜನ್ (N)",
+            "Hindi":"नाइट्रोजन (N)"
+        }[language],
+        min_value=0.0,
+        value=90.0
+    )
 
-K = st.number_input(
-    {
-        "English":"Potassium (K)",
-        "Kannada":"ಪೊಟಾಸಿಯಂ (K)",
-        "Hindi":"पोटैशियम (K)"
-    }[language],
-    min_value=0.0,
-    value=43.0
-)
+    P = st.number_input(
+        {
+            "English":"Phosphorus (P)",
+            "Kannada":"ಫಾಸ್ಫರಸ್ (P)",
+            "Hindi":"फॉस्फोरस (P)"
+        }[language],
+        min_value=0.0,
+        value=42.0
+    )
 
-temperature = st.number_input(
-    {
-        "English":"Temperature (°C)",
-        "Kannada":"ತಾಪಮಾನ (°C)",
-        "Hindi":"तापमान (°C)"
-    }[language],
-    value=25.0
-)
+    K = st.number_input(
+        {
+            "English":"Potassium (K)",
+            "Kannada":"ಪೊಟಾಸಿಯಂ (K)",
+            "Hindi":"पोटैशियम (K)"
+        }[language],
+        min_value=0.0,
+        value=43.0
+    )
 
-humidity = st.number_input(
-    {
-        "English":"Humidity (%)",
-        "Kannada":"ಆರ್ದ್ರತೆ (%)",
-        "Hindi":"नमी (%)"
-    }[language],
-    value=80.0
-)
+    temperature = st.number_input(
+        {
+            "English":"Temperature (°C)",
+            "Kannada":"ತಾಪಮಾನ (°C)",
+            "Hindi":"तापमान (°C)"
+        }[language],
+        value=25.0
+    )
 
-ph = st.number_input(
-    {
-        "English":"pH",
-        "Kannada":"pH",
-        "Hindi":"pH"
-    }[language],
-    value=6.5
-)
+    humidity = st.number_input(
+        {
+            "English":"Humidity (%)",
+            "Kannada":"ಆರ್ದ್ರತೆ (%)",
+            "Hindi":"नमी (%)"
+        }[language],
+        value=80.0
+    )
 
-rainfall = st.number_input(
-    {
-        "English":"Rainfall (mm)",
-        "Kannada":"ವರ್ಷಾವಸರ (ಮಿಮೀ)",
-        "Hindi":"वर्षा (मिमी)"
-    }[language],
-    value=220.0
-)
+    ph = st.number_input(
+        {
+            "English":"pH",
+            "Kannada":"pH",
+            "Hindi":"pH"
+        }[language],
+            value=6.5
+    )
 
-districts = sorted(
-    rainfall_df["DISTRICT"].dropna().unique()
-)
+    rainfall = st.number_input(
+        {
+            "English":"Rainfall (mm)",
+            "Kannada":"ವರ್ಷಾವಸರ (ಮಿಮೀ)",
+            "Hindi":"वर्षा (मिमी)"
+        }[language],
+        value=220.0
+    )
 
-district = st.selectbox(
-    TEXT["select_district"][language],
-    districts
-)
+    districts = sorted(
+        rainfall_df["DISTRICT"].dropna().unique()
+    )
+
+    district = st.selectbox(
+        TEXT["select_district"][language],
+        districts
+    )
+elif mode == TEXT["simple_mode"][language]:
+    districts = sorted(
+        rainfall_df["DISTRICT"].dropna().unique()
+    )
+
+    district = st.selectbox(
+        TEXT["district_select"][language],
+        districts
+    )
+
+    soil_type = st.selectbox(
+        TEXT["soil_type"][language],
+        ["Black Soil",
+            "Red Soil",
+            "Loamy Soil",
+            "Clay Soil",
+            "Sandy Soil"]
+    )
+
+    season = st.selectbox(
+        TEXT["season"][language],
+        ["Kharif",
+            "Rabi",
+            "Summer"]
+    )
+
+    water_availability = st.selectbox(
+        TEXT["water_availability"][language],
+        ["Low",
+            "Medium",
+            "High"]
+    )
 
 st.subheader("💧 Irrigation Information")
 
@@ -329,6 +442,37 @@ if st.button(button_text[language]):
     }])
 
     predicted_crop = model.predict(features)[0]
+
+elif mode == TEXT["simple_mode"][language]:
+
+    if soil_type == "Black Soil":
+
+        if water_availability == "High":
+                predicted_crop = "Cotton"
+        else:
+                predicted_crop = "Jowar"
+
+    elif soil_type == "Red Soil":
+
+        if season == "Kharif":
+                predicted_crop = "Groundnut"
+        else:
+                predicted_crop = "Ragi"
+
+    elif soil_type == "Loamy Soil":
+
+        if water_availability == "High":
+                predicted_crop = "Rice"
+        else:
+                predicted_crop = "Maize"
+
+    elif soil_type == "Clay Soil":
+
+            predicted_crop = "Rice"
+
+    else:
+
+            predicted_crop = "Bajra"
 
     st.success(
         f"{TEXT['best_crop'][language]}: {predicted_crop.upper()}"
