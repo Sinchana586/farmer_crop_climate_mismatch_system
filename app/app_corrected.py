@@ -3,12 +3,101 @@ import streamlit as st
 import pandas as pd
 import joblib
 import sqlite3
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+
+def generate_report(
+    crop,
+    weather,
+    market_price,
+    income,
+    irrigation
+):
+
+    pdf_file = "farmer_report.pdf"
+
+    doc = SimpleDocTemplate(pdf_file)
+
+    styles = getSampleStyleSheet()
+
+    content = []
+
+    content.append(
+        Paragraph(
+            "Farmer Recommendation Report",
+            styles["Title"]
+        )
+    )
+
+    content.append(Spacer(1, 12))
+
+    content.append(
+        Paragraph(
+            f"Recommended Crop: {crop}",
+            styles["Normal"]
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"Weather Status: {weather}",
+            styles["Normal"]
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"Market Price: ₹{market_price}",
+            styles["Normal"]
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"Estimated Income: ₹{income}",
+            styles["Normal"]
+        )
+    )
+
+    content.append(
+        Paragraph(
+            f"Irrigation Need: {irrigation}",
+            styles["Normal"]
+        )
+    )
+
+    doc.build(content)
+
+    return pdf_file
+
 
 st.set_page_config(
     page_title="Farmer Crop-Climate Mismatch System",
     page_icon="🌾",
     layout="wide"
 )
+
+st.markdown("""
+<style>
+
+div[data-testid="stMetric"] {
+    background-color: #1e1e1e;
+    border: 1px solid #4CAF50;
+    border-radius: 15px;
+    padding: 15px;
+}
+
+div[data-testid="stMetricLabel"] {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+h1 {
+    text-align: center;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # ---------- LANGUAGE ----------
 
@@ -272,10 +361,10 @@ TEXT = {
         "Hindi": "खेती के लिए मौसम अनुकूल है।"
     },
     "yield_analysis": {
-    "English": "🌾 Yield Analysis",
-    "Kannada": "🌾 ಇಳುವರಿ ವಿಶ್ಲೇಷಣೆ",
-    "Hindi": "🌾 उपज विश्लेषण"
-},
+        "English": "🌾 Yield Analysis",
+        "Kannada": "🌾 ಇಳುವರಿ ವಿಶ್ಲೇಷಣೆ",
+        "Hindi": "🌾 उपज विश्लेषण"
+    },
 
     "avg_yield": {
         "English": "Average Yield",
@@ -355,7 +444,32 @@ TEXT = {
         "English": "Prediction saved successfully.",
         "Kannada": "ಮುನ್ಸೂಚನೆ ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ.",
         "Hindi": "पूर्वानुमान सफलतापूर्वक सहेजा गया।"
-}
+    },
+    "farm_summary": {
+        "English": "📊 Farm Summary",
+        "Kannada": "📊 ಕೃಷಿ ಸಾರಾಂಶ",
+        "Hindi": "📊 कृषि सारांश"
+    },
+    "top_crops": {
+        "English": "🏆 Top Crop Recommendations",
+        "Kannada": "🏆 ಅತ್ಯುತ್ತಮ ಬೆಳೆ ಶಿಫಾರಸುಗಳು",
+        "Hindi": "🏆 सर्वोत्तम फसल सिफारिशें"
+    },
+    "download_report": {
+        "English": "📄 Download Report",
+        "Kannada": "📄 ವರದಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ",
+        "Hindi": "📄 रिपोर्ट डाउनलोड करें"
+    },
+    "expected_income": {
+        "English": "Expected Income",
+        "Kannada": "ಅಂದಾಜು ಆದಾಯ",
+        "Hindi": "अनुमानित आय"
+    },
+    "voice_assistant": {
+        "English": "🔊 Voice Assistant",
+        "Kannada": "🔊 ಧ್ವನಿ ಸಹಾಯಕ",
+        "Hindi": "🔊 वॉयस असिस्टेंट"
+    }
 
 }
 
@@ -722,9 +836,7 @@ if st.button(TEXT["predict"][language]):
             else:
                 predicted_crop = "Bajra"
 
-    st.success(
-        f"{TEXT['best_crop'][language]}: {predicted_crop.upper()}"
-    )
+
 
     # ==========================
     # Climate Analysis
@@ -768,9 +880,19 @@ if st.button(TEXT["predict"][language]):
     else:
         display_status = TEXT["weather_care"][language]
 
-    st.write(
-        f"**{TEXT['weather_safety'][language]}:** {display_status}"
-    )
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric(
+            label=TEXT["best_crop"][language],
+            value=predicted_crop.upper()
+        )
+
+    with col2:
+        st.metric(
+            label=TEXT["weather_safety"][language],
+            value=locals().get("display_status", "N/A")
+        )
 
     if weather_status == "Needs Care":
 
@@ -789,6 +911,7 @@ if st.button(TEXT["predict"][language]):
         st.success(
             TEXT["weather_favorable"][language]
         )
+
     
     # ==========================
     # Yield Analysis
@@ -894,6 +1017,70 @@ if st.button(TEXT["predict"][language]):
         rainfall = 800.0
 
     # ==========================
+    # Crop Ranking
+    # ==========================
+
+    st.subheader(
+        TEXT["top_crops"][language]
+    )
+
+    crop_rankings = []
+
+    # Best crop
+    crop_rankings.append(
+        (predicted_crop, estimated_income)
+    )
+
+    # Alternative crops from weather analysis
+
+    if weather_status == "Needs Care":
+
+        crop_rankings.extend([
+            ("Millet", estimated_income * 0.90),
+            ("Maize", estimated_income * 0.85)
+        ])
+
+    elif weather_status == "Moderate":
+
+        crop_rankings.extend([
+            ("Groundnut", estimated_income * 0.95),
+            ("Maize", estimated_income * 0.90)
+        ])
+
+    else:
+
+        crop_rankings.extend([
+            ("Rice", estimated_income * 0.95),
+            ("Maize", estimated_income * 0.90)
+        ])
+
+    crop_rankings = sorted(
+        crop_rankings,
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    col1, col2, col3 = st.columns(3)
+
+    for col, (crop, income) in zip(
+        [col1, col2, col3],
+        crop_rankings[:3]
+    ):
+
+        with col:
+
+            st.metric(
+                crop.upper(),
+                f"₹{income:,.0f}"
+            )
+    
+
+    st.metric(
+        crop.upper(),
+        f"₹{income:,.0f}",
+        help=TEXT["expected_income"][language]
+    )
+    # ==========================
     # Irrigation Prediction
     # ==========================
 
@@ -972,6 +1159,21 @@ if st.button(TEXT["predict"][language]):
     # Save Prediction
     # ==========================
 
+    pdf_file = generate_report(
+        predicted_crop,
+        display_status,
+        market_price,
+        estimated_income,
+        irrigation_need
+    )
+
+    st.download_button(
+        label=TEXT["download_report"][language],
+        data=open(pdf_file, "rb"),
+        file_name="farmer_report.pdf",
+        mime="application/pdf"
+    )
+
     cursor.execute("""
     INSERT INTO predictions (
     language,
@@ -993,6 +1195,37 @@ if st.button(TEXT["predict"][language]):
     st.success(
         TEXT["saved"][language]
     )
+
+    st.subheader(
+        TEXT["farm_summary"][language]
+    )
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric(
+            TEXT["best_crop"][language],
+            predicted_crop.upper()
+        )
+
+    with col2:
+        st.metric(
+            TEXT["weather_safety"][language],
+            display_status
+        )
+
+    with col3:
+        st.metric(
+            TEXT["current_price"][language],
+            f"₹{market_price:.0f}"
+        )
+
+    with col4:
+        st.metric(
+            TEXT["estimated_income"][language],
+            f"₹{estimated_income:.0f}"
+        )
+
 
     
 
