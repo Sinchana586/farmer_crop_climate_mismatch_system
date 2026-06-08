@@ -1003,10 +1003,7 @@ if st.button(TEXT["predict"][language]):
     # Income Estimation
     # ==========================
 
-    if (
-        'avg_yield' in locals()
-        and 'market_price' in locals()
-    ):
+    if not crop_data.empty and not crop_price_data.empty:
 
         estimated_income = avg_yield * market_price
 
@@ -1021,6 +1018,18 @@ if st.button(TEXT["predict"][language]):
         st.info(
             TEXT["income_note"][language]
         )
+
+        st.subheader(
+            TEXT["top_crops"][language]
+        )
+
+        crop_rankings = []
+
+        crop_rankings.append(
+            (predicted_crop, estimated_income)
+        )
+    
+
     
     if mode == TEXT["simple_mode"][language]:
 
@@ -1032,17 +1041,6 @@ if st.button(TEXT["predict"][language]):
     # ==========================
     # Crop Ranking
     # ==========================
-
-    st.subheader(
-        TEXT["top_crops"][language]
-    )
-
-    crop_rankings = []
-
-    # Best crop
-    crop_rankings.append(
-        (predicted_crop, estimated_income)
-    )
 
     # Alternative crops from weather analysis
 
