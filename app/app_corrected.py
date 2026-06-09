@@ -76,15 +76,63 @@ st.set_page_config(
     page_icon="🌾",
     layout="wide"
 )
+st.markdown("""
+<style>
+
+/* Metric Cards */
+div[data-testid="stMetric"]{
+    border:1px solid rgba(128,128,128,0.3);
+    border-radius:15px;
+    padding:15px;
+    transition:all 0.3s ease;
+}
+
+div[data-testid="stMetric"]:hover{
+    transform:translateY(-3px);
+}
+
+/* Buttons */
+.stButton button{
+    border-radius:12px;
+    font-weight:600;
+    transition:all 0.3s ease;
+}
+
+.stButton button:hover{
+    transform:scale(1.03);
+}
+
+/* Smooth Page Load */
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.block-container{
+    animation:fadeIn 0.6s ease-in-out;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 <style>
 
 div[data-testid="stMetric"] {
-    background-color: #1e1e1e;
-    border: 1px solid #4CAF50;
     border-radius: 15px;
     padding: 15px;
+    border: 1px solid rgba(128,128,128,0.3);
+    transition: all 0.3s ease;
+}
+
+div[data-testid="stMetric"]:hover {
+    transform: translateY(-3px);
 }
 
 div[data-testid="stMetricLabel"] {
@@ -469,6 +517,115 @@ TEXT = {
         "English": "🔊 Voice Assistant",
         "Kannada": "🔊 ಧ್ವನಿ ಸಹಾಯಕ",
         "Hindi": "🔊 वॉयस असिस्टेंट"
+    },
+    "negotiation_assistant": {
+        "English": "💰 Farmer Negotiation Assistant",
+        "Kannada": "💰 ರೈತ ಬೆಲೆ ಮಾತುಕತೆ ಸಹಾಯಕ",
+        "Hindi": "💰 किसान मूल्य वार्ता सहायक"
+    },
+    "why_crop": {
+    "English": "🧠 Why BhoomiAI Recommended This Crop",
+    "Kannada": "🧠 BhoomiAI ಈ ಬೆಳೆಯನ್ನು ಏಕೆ ಶಿಫಾರಸು ಮಾಡಿದೆ?",
+    "Hindi": "🧠 BhoomiAI ने इस फसल की सिफारिश क्यों की?"
+    },
+
+    "positive_outlook": {
+    "English": "🟢 Positive Outlook",
+    "Kannada": "🟢 ಧನಾತ್ಮಕ ದೃಷ್ಟಿಕೋನ",
+    "Hindi": "🟢 सकारात्मक दृष्टिकोण"
+    },
+
+    "neutral_outlook": {
+    "English": "🟡 Neutral Outlook",
+    "Kannada": "🟡 ತಟಸ್ಥ ದೃಷ್ಟಿಕೋನ",
+    "Hindi": "🟡 तटस्थ दृष्टिकोण"
+    },
+
+    "negative_outlook": {
+    "English": "🔴 Negative Outlook",
+    "Kannada": "🔴 ಋಣಾತ್ಮಕ ದೃಷ್ಟಿಕೋನ",
+    "Hindi": "🔴 नकारात्मक दृष्टिकोण"
+    },
+
+    "reason_rainfall_low": {
+    "English": "✓ Suitable for low rainfall conditions",
+    "Kannada": "✓ ಕಡಿಮೆ ಮಳೆಯ ಪರಿಸ್ಥಿತಿಗಳಿಗೆ ಸೂಕ್ತವಾಗಿದೆ",
+    "Hindi": "✓ कम वर्षा की परिस्थितियों के लिए उपयुक्त"
+    },
+
+    "reason_rainfall_good": {
+    "English": "✓ Suitable for available rainfall",
+    "Kannada": "✓ ಲಭ್ಯವಿರುವ ಮಳೆಯ ಪ್ರಮಾಣಕ್ಕೆ ಸೂಕ್ತವಾಗಿದೆ",
+    "Hindi": "✓ उपलब्ध वर्षा के लिए उपयुक्त"
+    },
+
+    "reason_simple": {
+    "English": "✓ Selected based on soil and seasonal conditions",
+    "Kannada": "✓ ಮಣ್ಣು ಮತ್ತು ಋತುಮಾನ ಪರಿಸ್ಥಿತಿಗಳ ಆಧಾರದ ಮೇಲೆ ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ",
+    "Hindi": "✓ मिट्टी और मौसम की स्थिति के आधार पर चयनित"
+    },
+
+    "reason_advanced": {
+    "English": "✓ Selected using soil nutrient analysis",
+    "Kannada": "✓ ಮಣ್ಣಿನ ಪೋಷಕಾಂಶ ವಿಶ್ಲೇಷಣೆಯ ಆಧಾರದ ಮೇಲೆ ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ",
+    "Hindi": "✓ मिट्टी पोषक तत्व विश्लेषण के आधार पर चयनित"
+    },
+
+    "reason_weather_good": {
+    "English": "✓ Favorable climate conditions",
+    "Kannada": "✓ ಅನುಕೂಲಕರ ಹವಾಮಾನ ಪರಿಸ್ಥಿತಿಗಳು",
+    "Hindi": "✓ अनुकूल जलवायु परिस्थितियाँ"
+    },
+
+    "reason_weather_moderate": {
+    "English": "✓ Moderate climate conditions",
+    "Kannada": "✓ ಮಧ್ಯಮ ಹವಾಮಾನ ಪರಿಸ್ಥಿತಿಗಳು",
+    "Hindi": "✓ मध्यम जलवायु परिस्थितियाँ"
+    },
+
+    "reason_weather_risk": {
+    "English": "⚠ Climate risk detected",
+    "Kannada": "⚠ ಹವಾಮಾನ ಅಪಾಯ ಪತ್ತೆಯಾಗಿದೆ",
+    "Hindi": "⚠ जलवायु जोखिम पाया गया"
+    },
+    "fair_range": {
+    "English": "Fair Selling Range",
+    "Kannada": "ನ್ಯಾಯಸಮ್ಮತ ಮಾರಾಟ ಶ್ರೇಣಿ",
+    "Hindi": "उचित बिक्री सीमा"
+    },
+
+    "avoid_below": {
+    "English": "Avoid selling below",
+    "Kannada": "ಇದಕ್ಕಿಂತ ಕಡಿಮೆ ಬೆಲೆಗೆ ಮಾರಾಟ ಮಾಡಬೇಡಿ",
+    "Hindi": "इससे कम मूल्य पर बिक्री न करें"
+    },
+
+    "market_favorable": {
+    "English": "Market conditions are favorable. Consider selling now.",
+    "Kannada": "ಮಾರುಕಟ್ಟೆ ಪರಿಸ್ಥಿತಿಗಳು ಅನುಕೂಲಕರವಾಗಿವೆ. ಈಗ ಮಾರಾಟ ಮಾಡುವುದನ್ನು ಪರಿಗಣಿಸಿ.",
+    "Hindi": "बाज़ार की स्थिति अनुकूल है। अभी बेचने पर विचार करें।"
+    },
+
+    "market_low": {
+    "English": "Market prices are relatively low. Consider waiting if storage is available.",
+    "Kannada": "ಮಾರುಕಟ್ಟೆ ಬೆಲೆಗಳು ತುಲನಾತ್ಮಕವಾಗಿ ಕಡಿಮೆಯಿವೆ. ಸಂಗ್ರಹಣೆ ಸೌಲಭ್ಯ ಇದ್ದರೆ ಕಾಯುವ ಬಗ್ಗೆ ಪರಿಗಣಿಸಿ.",
+    "Hindi": "बाज़ार मूल्य अपेक्षाकृत कम हैं। यदि भंडारण उपलब्ध है तो प्रतीक्षा करने पर विचार करें।"
+    },
+    "summary": {
+    "English": "📊 BhoomiAI Summary",
+    "Kannada": "📊 BhoomiAI ಸಾರಾಂಶ",
+    "Hindi": "📊 BhoomiAI सारांश"
+    },
+    "price": {
+    "English": "💰 Price",
+    "Kannada": "💰 ಬೆಲೆ",
+    "Hindi": "💰 मूल्य"
+    },
+
+    "income": {
+    "English": "💵 Income",
+    "Kannada": "💵 ಆದಾಯ",
+    "Hindi": "💵 आय"
     }
 
 }
@@ -486,12 +643,17 @@ titles = {
 }
 
 st.markdown(f"""
-<div style='text-align:center; padding:20px;'>
+<div style="
+padding:20px;
+border-radius:15px;
+border:1px solid rgba(128,128,128,0.3);
+text-align:center;
+margin-bottom:20px;
+">
     <h1>🌾 BhoomiAI</h1>
     <h4>{titles[language]}</h4>
 </div>
 """, unsafe_allow_html=True)
-
 
 # ---------- LOAD ----------
 model = joblib.load(
@@ -848,9 +1010,14 @@ if st.button(TEXT["predict"][language]):
 
             else:
                 predicted_crop = "Bajra"
+    # ==========================
+    # Crop Recommendation
+    # ==========================
 
-
-
+    st.success(
+        f"{TEXT['best_crop'][language]}: {predicted_crop.upper()}"
+    )
+    st.divider()
     # ==========================
     # Climate Analysis
     # ==========================
@@ -925,7 +1092,102 @@ if st.button(TEXT["predict"][language]):
             TEXT["weather_favorable"][language]
         )
 
-    
+    st.divider()
+    # ==========================
+    # Why BhoomiAI Recommended This Crop
+    # ==========================
+
+    st.subheader(
+    TEXT["why_crop"][language]
+    )
+
+    reasons = []
+    outlook_score = 0
+
+    if mode == TEXT["simple_mode"][language]:
+
+        reasons.append(
+        TEXT["reason_simple"][language]
+        )
+
+        outlook_score += 30
+
+    else:
+
+        reasons.append(
+        TEXT["reason_advanced"][language]
+        )
+
+        outlook_score += 30
+
+    if weather_status == "Good":
+
+        reasons.append(
+        TEXT["reason_weather_good"][language]
+        )
+
+        outlook_score += 40
+
+    elif weather_status == "Moderate":
+
+        reasons.append(
+        TEXT["reason_weather_moderate"][language]
+        )
+
+        outlook_score += 20
+
+    else:
+
+        reasons.append(
+        TEXT["reason_weather_risk"][language]
+        )
+
+    if weather_status == "Good":
+
+        reasons.append(
+        TEXT["reason_weather_good"][language]
+        )
+
+        outlook_score += 30
+
+    elif weather_status == "Moderate":
+
+        reasons.append(
+        TEXT["reason_weather_moderate"][language]
+        )
+
+        outlook_score += 15
+
+    else:
+
+        reasons.append(
+        TEXT["reason_weather_risk"][language]
+        )
+
+    outlook_score = min(outlook_score, 100)
+
+    if outlook_score >= 70:
+
+        st.success(
+        f"{TEXT['positive_outlook'][language]} ({outlook_score}/100)"
+        )
+
+    elif outlook_score >= 40:
+
+        st.warning(
+        f"{TEXT['neutral_outlook'][language]} ({outlook_score}/100)"
+        )
+
+    else:
+
+        st.error(
+        f"{TEXT['negative_outlook'][language]} ({outlook_score}/100)"
+        )
+
+    for reason in reasons:
+
+        st.write(reason)
+    st.divider()
     # ==========================
     # Yield Analysis
     # ==========================
@@ -966,7 +1228,7 @@ if st.button(TEXT["predict"][language]):
             st.warning(
                 TEXT["low_harvest"][language]
             )
-
+    st.divider()
     # ==========================
     # Market Price Analysis
     # ==========================
@@ -998,7 +1260,35 @@ if st.button(TEXT["predict"][language]):
         st.warning(
             TEXT["price_not_found"][language]
         )
+    st.divider()
 
+    st.subheader(
+        TEXT["negotiation_assistant"][language]
+    )
+    minimum_price = market_price * 0.90
+    ideal_price = market_price
+    premium_price = market_price * 1.10
+
+    st.info(
+    f"{TEXT['fair_range'][language]}: ₹{minimum_price:.0f} - ₹{premium_price:.0f}"
+    )
+
+    st.warning(
+    f"{TEXT['avoid_below'][language]} ₹{minimum_price:.0f}"
+    )
+
+    if market_price > 3000:
+
+        st.success(
+        TEXT["market_favorable"][language]
+        )
+
+    else:
+
+        st.warning(
+        TEXT["market_low"][language]
+        )
+    st.divider()
     # ==========================
     # Income Estimation
     # ==========================
@@ -1018,7 +1308,7 @@ if st.button(TEXT["predict"][language]):
         st.info(
             TEXT["income_note"][language]
         )
-
+        st.divider()
         st.subheader(
             TEXT["top_crops"][language]
         )
@@ -1037,7 +1327,7 @@ if st.button(TEXT["predict"][language]):
         humidity = 70.0
         ph = 6.5
         rainfall = 800.0
-
+    
     # ==========================
     # Crop Ranking
     # ==========================
@@ -1091,6 +1381,7 @@ if st.button(TEXT["predict"][language]):
         f"₹{income:,.0f}",
         help=TEXT["expected_income"][language]
     )
+    st.divider()
     # ==========================
     # Irrigation Prediction
     # ==========================
@@ -1165,11 +1456,13 @@ if st.button(TEXT["predict"][language]):
     st.success(
         f"{TEXT['irrigation_need'][language]}: {display_irrigation}"
     )
-
+    st.divider()
     # ==========================
     # Save Prediction
     # ==========================
-
+    st.success(
+        TEXT["saved"][language]
+    )
     pdf_file = generate_report(
         predicted_crop,
         display_status,
@@ -1203,44 +1496,39 @@ if st.button(TEXT["predict"][language]):
     ))
 
     conn.commit()   
-    st.success(
-        TEXT["saved"][language]
-    )
+   
+    st.divider()
 
+    
     st.subheader(
-        TEXT["farm_summary"][language]
+    TEXT["summary"][language]
     )
 
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         st.metric(
-            TEXT["best_crop"][language],
-            predicted_crop.upper()
+        TEXT["best_crop"][language],
+        predicted_crop.upper()
         )
 
     with col2:
         st.metric(
-            TEXT["weather_safety"][language],
-            display_status
+        TEXT["weather_safety"][language],
+        display_status
         )
 
     with col3:
         st.metric(
-            TEXT["current_price"][language],
-            f"₹{market_price:.0f}"
+        TEXT["price"][language],
+        f"₹{market_price:.0f}"
         )
 
     with col4:
         st.metric(
-            TEXT["estimated_income"][language],
-            f"₹{estimated_income:.0f}"
+        TEXT["income"][language],
+        f"₹{estimated_income:.0f}"
         )
-
-
-    
-
-    
-
+    st.divider()
 
    
