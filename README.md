@@ -1,7 +1,7 @@
 #   BhoomiAI
-## 🌾 AI-powered Farmer Crop-Climate Mismatch Early Warning System
+## 🌾 AI & Deep Learning powered Farmer Crop-Climate Mismatch Early Warning System
 
-A multilingual smart farming assistant designed to help farmers make informed agricultural decisions through machine learning, climate analysis, irrigation prediction, market insights, and income estimation.
+A multilingual smart farming assistant designed to help farmers make informed agricultural decisions through AI and Deep Learning, climate analysis, irrigation prediction, market insights, and income estimation.
 
 ## 🚀 Features
 

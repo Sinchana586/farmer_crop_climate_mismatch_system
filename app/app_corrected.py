@@ -5,6 +5,9 @@ import joblib
 import sqlite3
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model
+import numpy as np
 
 def generate_report(
     crop,
@@ -656,8 +659,16 @@ margin-bottom:20px;
 """, unsafe_allow_html=True)
 
 # ---------- LOAD ----------
-model = joblib.load(
-    "models/random_forest_model.pkl"
+model = load_model(
+    "models/neural_network_model.h5"
+)
+
+scaler = joblib.load(
+    "models/neural_network_scaler.pkl"
+)
+
+label_encoder = joblib.load(
+    "models/neural_network_label_encoder.pkl"
 )
 
 irrigation_model = joblib.load(
@@ -910,16 +921,26 @@ soil_moisture = st.slider(
 if st.button(TEXT["predict"][language]):
 
     if mode == TEXT["advanced"][language]:
-        features = pd.DataFrame([{
-            "N":N,
-            "P":P,
-            "K":K,
-            "temperature":temperature,
-            "humidity":humidity,
-            "ph":ph,
-            "rainfall":rainfall
-        }])
-        predicted_crop = model.predict(features)[0]
+        features = np.array([[
+            N,
+            P,
+            K,
+            temperature,
+            humidity,
+            ph,
+            rainfall
+        ]])
+
+        features = scaler.transform(features)
+
+        prediction = model.predict(
+            features,
+            verbose=0
+        )
+
+        predicted_crop = label_encoder.inverse_transform(
+            [np.argmax(prediction)]
+        )[0]
     else:
     # English
         if language == "English":
