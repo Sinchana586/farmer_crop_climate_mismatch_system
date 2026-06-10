@@ -937,10 +937,19 @@ if st.button(TEXT["predict"][language]):
             features,
             verbose=0
         )
-
+        confidence = np.max(prediction) * 100
         predicted_crop = label_encoder.inverse_transform(
             [np.argmax(prediction)]
         )[0]
+
+        confidence = np.max(prediction) * 100
+
+        if confidence >= 90:
+            st.success(f"🟢 High Confidence ({confidence:.2f}%)")
+        elif confidence >= 70:
+            st.info(f"🟡 Moderate Confidence ({confidence:.2f}%)")
+        else:
+            st.warning(f"🔴 Low Confidence ({confidence:.2f}%)")
     else:
     # English
         if language == "English":
