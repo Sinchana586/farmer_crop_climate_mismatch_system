@@ -629,6 +629,34 @@ TEXT = {
     "English": "💵 Income",
     "Kannada": "💵 ಆದಾಯ",
     "Hindi": "💵 आय"
+    },
+    "top_crops": {
+    "English": "🏆 Top Crop Rankings",
+    "Kannada": "🏆 ಅತ್ಯುತ್ತಮ ಬೆಳೆ ಶ್ರೇಯಾಂಕಗಳು",
+    "Hindi": "🏆 शीर्ष फसल रैंकिंग"
+    },
+
+    "rank": {
+    "English": "Rank",
+    "Kannada": "ಶ್ರೇಣಿ",
+    "Hindi": "रैंक"
+    },
+
+    "crop_name": {
+    "English": "Crop",
+    "Kannada": "ಬೆಳೆ",
+    "Hindi": "फसल"
+    },
+
+    "crop_score": {
+    "English": "Suitability Score",
+    "Kannada": "ಸೂಕ್ತತೆ ಅಂಕ",
+    "Hindi": "उपयुक्तता स्कोर"
+    },
+    "ranking_method": {
+    "English": "Ranking is based on Income (40%), Climate Suitability (30%), Irrigation Requirement (20%), and Market Conditions (10%).",
+    "Kannada": "ಶ್ರೇಯಾಂಕವು ಆದಾಯ (40%), ಹವಾಮಾನ ಸೂಕ್ತತೆ (30%), ನೀರಾವರಿ ಅಗತ್ಯ (20%) ಮತ್ತು ಮಾರುಕಟ್ಟೆ ಪರಿಸ್ಥಿತಿಗಳು (10%) ಆಧಾರಿತವಾಗಿದೆ.",
+    "Hindi": "रैंकिंग आय (40%), जलवायु उपयुक्तता (30%), सिंचाई आवश्यकता (20%) और बाजार स्थितियों (10%) पर आधारित है।"
     }
 
 }
@@ -1358,60 +1386,7 @@ if st.button(TEXT["predict"][language]):
         ph = 6.5
         rainfall = 800.0
     
-    # ==========================
-    # Crop Ranking
-    # ==========================
-
-    # Alternative crops from weather analysis
-
-    if weather_status == "Needs Care":
-
-        crop_rankings.extend([
-            ("Millet", estimated_income * 0.90),
-            ("Maize", estimated_income * 0.85)
-        ])
-
-    elif weather_status == "Moderate":
-
-        crop_rankings.extend([
-            ("Groundnut", estimated_income * 0.95),
-            ("Maize", estimated_income * 0.90)
-        ])
-
-    else:
-
-        crop_rankings.extend([
-            ("Rice", estimated_income * 0.95),
-            ("Maize", estimated_income * 0.90)
-        ])
-
-    crop_rankings = sorted(
-        crop_rankings,
-        key=lambda x: x[1],
-        reverse=True
-    )
-
-    col1, col2, col3 = st.columns(3)
-
-    for col, (crop, income) in zip(
-        [col1, col2, col3],
-        crop_rankings[:3]
-    ):
-
-        with col:
-
-            st.metric(
-                crop.upper(),
-                f"₹{income:,.0f}"
-            )
     
-
-    st.metric(
-        crop.upper(),
-        f"₹{income:,.0f}",
-        help=TEXT["expected_income"][language]
-    )
-    st.divider()
     # ==========================
     # Irrigation Prediction
     # ==========================
@@ -1485,6 +1460,171 @@ if st.button(TEXT["predict"][language]):
 
     st.success(
         f"{TEXT['irrigation_need'][language]}: {display_irrigation}"
+    )
+
+
+    st.divider()
+
+
+    # ==========================
+    # Smart Crop Ranking System
+    # ==========================
+
+    crop_rankings = []
+
+    # Recommended Crop
+
+    income_score = min(
+    (estimated_income / 100000) * 100,
+    100
+    )
+
+    # Climate Score
+
+    if weather_status == "Good":
+        climate_score = 100
+    elif weather_status == "Moderate":
+        climate_score = 75
+    else:
+        climate_score = 50
+
+    # Irrigation Score
+
+    if irrigation_need == "Low":
+        irrigation_score = 100
+    elif irrigation_need == "Medium":
+        irrigation_score = 75
+    else:
+        irrigation_score = 50
+
+    # Market Score
+
+    market_score = min(
+    (market_price / 5000) * 100,
+    100
+    )
+
+    # Final Score
+
+    final_score = (
+    income_score * 0.40 +
+    climate_score * 0.30 +
+    irrigation_score * 0.20 +
+    market_score * 0.10
+    )
+
+    crop_rankings.append(
+    (
+        predicted_crop,
+        estimated_income,
+        final_score
+    )
+    )
+
+    # Alternative crops
+
+    if weather_status == "Needs Care":
+
+        crop_rankings.extend([
+        ("Millet", estimated_income * 0.90, final_score * 0.88),
+        ("Maize", estimated_income * 0.85, final_score * 0.82)
+        ])
+
+    elif weather_status == "Moderate":
+
+        crop_rankings.extend([
+        ("Groundnut", estimated_income * 0.95, final_score * 0.92),
+        ("Maize", estimated_income * 0.90, final_score * 0.88)
+        ])
+
+    else:
+
+        crop_rankings.extend([
+        ("Rice", estimated_income * 0.95, final_score * 0.93),
+        ("Maize", estimated_income * 0.90, final_score * 0.89)
+        ])
+
+    crop_rankings = sorted(
+    crop_rankings,
+    key=lambda x: x[2],
+    reverse=True
+    )
+    st.subheader(
+    TEXT["top_crops"][language]
+    )
+
+    ranking_data = []
+
+    for idx, (
+    crop_name,
+    income,
+    score
+    ) in enumerate(
+    crop_rankings,
+    start=1
+    ):
+
+        display_crop = crop_name
+
+        if crop_name == predicted_crop:
+            display_crop = f"⭐ {crop_name}"
+
+        ranking_data.append({
+
+            TEXT["rank"][language]:
+            idx,
+
+            TEXT["crop_name"][language]:
+            display_crop,
+
+            TEXT["estimated_income"][language]:
+            f"₹{income:,.0f}",
+
+            TEXT["crop_score"][language]:
+            f"{score:.1f}/100"
+
+        })
+
+    ranking_df = pd.DataFrame(
+    ranking_data
+    )
+
+    st.dataframe(
+    ranking_df,
+    use_container_width=True,
+    hide_index=True
+    )
+    st.markdown("### 🏅 Top Recommendations")
+
+    col1, col2, col3 = st.columns(3)
+
+    for col, (
+    crop,
+    income,
+    score
+    ) in zip(
+    [col1, col2, col3],
+    crop_rankings[:3]
+    ):
+
+        with col:
+
+            st.metric(
+            crop,
+            f"{score:.1f}/100",
+            f"₹{income:,.0f}"
+            )
+    best_crop = crop_rankings[0]
+
+    st.success(
+    f"🏆 {best_crop[0]} | {TEXT['crop_score'][language]}: {best_crop[2]:.1f}/100"
+    )
+    st.info(
+    TEXT["ranking_method"][language]
+    )
+
+    st.caption(
+    TEXT["ranking_note"][language]
     )
     st.divider()
     # ==========================
