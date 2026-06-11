@@ -657,6 +657,11 @@ TEXT = {
     "English": "Ranking is based on Income (40%), Climate Suitability (30%), Irrigation Requirement (20%), and Market Conditions (10%).",
     "Kannada": "ಶ್ರೇಯಾಂಕವು ಆದಾಯ (40%), ಹವಾಮಾನ ಸೂಕ್ತತೆ (30%), ನೀರಾವರಿ ಅಗತ್ಯ (20%) ಮತ್ತು ಮಾರುಕಟ್ಟೆ ಪರಿಸ್ಥಿತಿಗಳು (10%) ಆಧಾರಿತವಾಗಿದೆ.",
     "Hindi": "रैंकिंग आय (40%), जलवायु उपयुक्तता (30%), सिंचाई आवश्यकता (20%) और बाजार स्थितियों (10%) पर आधारित है।"
+    },
+    "ranking_note": {
+    "English": "⭐ indicates the crop recommended by BhoomiAI",
+    "Kannada": "⭐ BhoomiAI ಶಿಫಾರಸು ಮಾಡಿದ ಬೆಳೆಯನ್ನು ಸೂಚಿಸುತ್ತದೆ",
+    "Hindi": "⭐ BhoomiAI द्वारा अनुशंसित फसल को दर्शाता है"
     }
 
 }
@@ -1366,16 +1371,7 @@ if st.button(TEXT["predict"][language]):
         st.info(
             TEXT["income_note"][language]
         )
-        st.divider()
-        st.subheader(
-            TEXT["top_crops"][language]
-        )
-
-        crop_rankings = []
-
-        crop_rankings.append(
-            (predicted_crop, estimated_income)
-        )
+        
     
 
     
@@ -1386,7 +1382,7 @@ if st.button(TEXT["predict"][language]):
         ph = 6.5
         rainfall = 800.0
     
-    
+    st.divider()
     # ==========================
     # Irrigation Prediction
     # ==========================
